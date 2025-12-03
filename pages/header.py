@@ -96,6 +96,7 @@ def show_header(active_page=None):
                 {"label": "Sprints", "page": "pages/sprints.py", "icon": "⚡"},
                 {"label": "Team", "page": "pages/team.py", "icon": "👥"},
                 {"label": "Reports/Analytics", "page": "pages/reports.py", "icon": "📊"},
+                {"label": "Investor Interest", "page": "pages/investor_interest.py", "icon": "💼"},
                 {"label": "Profile", "page": "pages/profile.py", "icon": "👤"},
                 {"label": "Messages", "page": "pages/messages.py", "icon": "💬"},
             ]

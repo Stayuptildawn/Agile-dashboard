@@ -50,7 +50,7 @@ def load_css():
       .navbar {
         background: var(--blue);
         border-radius: 12px;
-        padding: 8px 14px;
+        padding: 10px 14px;
         box-shadow: 0 3px 10px rgba(0,0,0,.06);
         margin: 12px 0 18px 0;
 
@@ -58,7 +58,7 @@ def load_css():
         flex-direction: row;
         align-items: center;
         flex-wrap: nowrap;          /* stay on ONE row */
-        gap: 10px;
+        gap: 8px;
         overflow-x: auto;           /* if too many items, scroll horizontally */
         white-space: nowrap;        /* prevent internal line breaks */
       }
@@ -68,13 +68,15 @@ def load_css():
         color: #ffffff;
         text-decoration: none;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 13px;
       }
 
       .navbar a.navlink {
-        padding: 4px 12px;
+        padding: 6px 10px;
         border-radius: 999px;
         display: inline-block;
+        min-height: 32px;
+        line-height: 1.4;
       }
 
       .navbar a.navlink:hover {
@@ -88,6 +90,43 @@ def load_css():
 
       .navbar .sep {
         opacity: 0.9;
+      }
+
+      /* Override Streamlit's page_link styling in navbar */
+      .navbar a[data-testid="stPageLink-NavLink"] {
+        font-size: 13px !important;
+        padding: 6px 10px !important;
+        min-height: 32px !important;
+        white-space: normal !important;
+        line-height: 1.4 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .navbar a[data-testid="stPageLink-NavLink"] p {
+        margin: 0 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
+
+      /* Make navbar columns flexible to accommodate text */
+      .navbar [data-testid="column"] {
+        min-width: 100px !important;
+        flex: 1 1 auto !important;
+      }
+
+      /* Target all buttons in navbar */
+      .navbar button,
+      .navbar a {
+        font-size: 12px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        height: auto !important;
+        min-height: 36px !important;
+        padding: 8px 12px !important;
       }
     </style>
     """,
