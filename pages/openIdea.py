@@ -64,38 +64,126 @@ if idea is None:
     st.switch_page("pages/dashboard.py")
     st.stop()
 
-c1, c2 = st.columns(2)
-
-with c1:
-    st.text_input("Idea Title", value=idea["Idea Title"], disabled=True)
-    st.selectbox("Category of the idea", [idea["Category of the idea"]], index=0, disabled=True)
-    st.text_area("Short Description (max 200 chars)", value=idea["Short Description"], height=100, disabled=True)
-    st.text_area("Detailed Description", value=idea["Detailed Description"], height=200, disabled=True)
-
-    st.markdown("<h6>Upload Files</h6>", unsafe_allow_html=True)
-    displayed_doc = idea.get("Document name") or "No document attached"
-    st.markdown(
-        f"""
-    <div style="border: 1px dashed #ccc; padding: 2rem; text-align: center;">
-        <span style="font-size: 3rem;">⬆️</span>
-        <p style="margin:0; font-weight:600; word-break:break-word;">{displayed_doc}</p>
+# Display title and metadata badges
+st.markdown(f"""
+<div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+    <h2 style="margin: 0 0 20px 0; color: #111827;">{idea['Idea Title']}</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <span style="background: #10b981; color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            📂 {idea["Category of the idea"]}
+        </span>
+        <span style="background: #6366f1; color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            📅 {idea.get("Date published", "N/A")[:10]}
+        </span>
+        <span style="background: #10b981; color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            ✓ {idea.get("Status", "N/A")}
+        </span>
+        <span style="background: #8b5cf6; color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+            👁️ {idea.get("Visibility Setting", "Public")}
+        </span>
     </div>
-    """,
-        unsafe_allow_html=True,
-    )
+    <p style="margin: 0; color: #4b5563; line-height: 1.6;">{idea["Short Description"]}</p>
+</div>
+""", unsafe_allow_html=True)
 
-with c2:
-    st.text_input(
-        "Estimated Impact / Target Audience",
-        value=idea["Estimated Impact / Target Audience"],
-        disabled=True,
-    )
-    st.selectbox("Visibility Setting", [idea["Visibility Setting"]], index=0, disabled=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("### Meta information")
-    st.text_input("Status", value=idea.get("Status", ""), disabled=True)
-    st.text_input("Owner", value=idea.get("Owner", ""), disabled=True)
-    st.text_input("Date published", value=idea.get("Date published", ""), disabled=True)
+# Check if user is admin for engagement metrics
+is_admin = st.session_state.get("role") == "admin"
+
+if is_admin:
+    # Engagement Metrics (only for admin)
+    st.markdown("### 📊 Engagement Metrics")
+    
+    metric_col1, metric_col2 = st.columns(2)
+    
+    with metric_col1:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 48px; font-weight: bold; color: white;">127</div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.9);">Investor Views</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with metric_col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 48px; font-weight: bold; color: white;">23</div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.9);">Interests Expressed</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+
+# Two-column layout for main content
+left_col, right_col = st.columns([2, 1])
+
+with left_col:
+    # Detailed Description
+    st.markdown("### 📝 Detailed Description")
+    st.markdown(f"""
+    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #6366f1;">
+        {idea["Detailed Description"]}
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Uploaded Files
+    st.markdown("### 📎 Uploaded Files")
+    displayed_doc = idea.get("Document name") or "No document attached"
+    st.markdown(f"""
+    <div style="background: white; border: 2px dashed #d1d5db; padding: 40px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
+        <div style="font-size: 14px; color: #6b7280; font-weight: 600;">{displayed_doc}</div>
+        <button style="margin-top: 15px; background: #6366f1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">📥 Download File</button>
+    </div>
+    """, unsafe_allow_html=True)
+
+with right_col:
+    # Project Information
+    st.markdown("### 🔷 Project Information")
+    st.markdown(f"""
+    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 10px;">
+        <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Category</div>
+        <div style="font-size: 14px; font-weight: 600; color: #111827;">{idea["Category of the idea"]}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 10px;">
+        <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Target Audience</div>
+        <div style="font-size: 14px; font-weight: 600; color: #111827;">{idea["Estimated Impact / Target Audience"]}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 10px;">
+        <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Status</div>
+        <div style="font-size: 14px; font-weight: 600; color: #10b981;">✓ {idea.get("Status", "N/A")}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Student/Team Information
+    st.markdown("### 👥 Student/Team Information")
+    
+    # Owner info
+    owner = idea.get("Owner", "Unknown")
+    st.markdown(f"""
+    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                {owner[0].upper() if owner else "?"}
+            </div>
+            <div>
+                <div style="font-size: 13px; font-weight: 600; color: #111827;">{owner}</div>
+                <div style="font-size: 11px; color: #6b7280;">Project Lead/Owner</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
