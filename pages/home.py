@@ -80,7 +80,22 @@ if not is_authenticated:
         df = df[df["Status"] == "Accepted"].copy()
     if "Visibility Setting" in df.columns:
         df = df[df["Visibility Setting"] == "Public"].copy()
-    st.info("🔓 Viewing public accepted ideas only. Login to see all ideas and manage your own.")
+    st.markdown("""
+        <div style="
+            background-color: #e8f0fe;
+            border-left: 6px solid #1d4ed8;
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin: 14px 0;
+        ">
+            🔓 Viewing public accepted ideas only.<br>
+            Login to see all ideas and manage your own.
+        </div>
+        """, unsafe_allow_html=True)
+
 else:
     # Logged in
     if role == "investor" and "Status" in df.columns:
@@ -101,8 +116,116 @@ flash_msg = st.session_state.pop("flash_success", None)
 if flash_msg:
     st.success(flash_msg)
 
-# ========== SECTION 1: STATISTICS & OVERVIEW (TOP) ==========
+# ========== SECTION 1: ALL IDEAS TABLE (BOTTOM) ==========
 st.title("🏠 Innovation Dashboard")
+st.markdown("### 📋 All Ideas" + (" (Public Only)" if not is_authenticated else ""))
+
+# -------- Filters --------
+filter_cols = st.columns([1.2, 0.4, 0.4, 0.4])
+with filter_cols[0]:
+    q = st.text_input("Search (name / description)", key="home_search")
+with filter_cols[1]:
+    fd = st.date_input("From date", value=None, key="home_from")
+with filter_cols[2]:
+    td = st.date_input("To date", value=None, key="home_to")
+with filter_cols[3]:
+    cat_options = sorted(df["Category"].dropna().unique()) if "Category" in df.columns else []
+    category = st.selectbox("Category", options=["All"] + cat_options, index=0, key="home_category")
+
+# Apply filters
+filtered_df = df.copy()
+m = pd.Series([True] * len(filtered_df))
+if fd:
+    m &= filtered_df["From date"] >= pd.to_datetime(fd)
+if td:
+    m &= filtered_df["To date"] <= pd.to_datetime(td)
+if category and category != "All":
+    m &= filtered_df["Category"] == category
+if q:
+    ql = q.lower()
+    m &= (
+        filtered_df["Name"].str.lower().str.contains(ql, na=False) |
+        filtered_df["Description"].str.lower().str.contains(ql, na=False)
+    )
+filtered_df = filtered_df[m].reset_index(drop=True)
+
+if len(filtered_df) == 0:
+    st.info("No ideas match your filters. Try adjusting your search criteria.")
+    st.stop()
+
+# Show filtered count
+st.caption(f"Showing {len(filtered_df)} of {len(df)} ideas")
+
+# Prepare display dataframe
+display_df = pd.DataFrame()
+if "Name" in filtered_df.columns:
+    display_df["Title"] = filtered_df["Name"]
+if "Date published" in filtered_df.columns:
+    display_df["Date published"] = filtered_df["Date published"].dt.strftime("%Y-%m-%d")
+if "Description" in filtered_df.columns:
+    display_df["Short Description"] = filtered_df["Description"]
+if "Category" in filtered_df.columns:
+    display_df["Category"] = filtered_df["Category"]
+if "Status" in filtered_df.columns:
+    display_df["Status"] = filtered_df["Status"]
+if "Owner" in filtered_df.columns:
+    display_df["Owner"] = filtered_df["Owner"]
+
+# ---- AgGrid configuration ----
+gb = GridOptionsBuilder.from_dataframe(display_df)
+
+# Make Short Description wider
+if "Short Description" in display_df.columns:
+    gb.configure_column("Short Description", width=800)
+
+# Configure sortable columns
+if "Title" in display_df.columns:
+    gb.configure_column(
+        field="Title",
+        sortable=True,
+        suppressMenu=True
+    )
+if "Date published" in display_df.columns:
+    gb.configure_column(
+        field="Date published",
+        sortable=True,
+        suppressMenu=True
+    )
+
+# Status column styling
+if "Status" in display_df.columns:
+    cell_style = JsCode("""
+    function(params){
+        const v = params.value;
+        const base = {'border-radius':'999px','padding':'2px 8px','font-weight':'600','display':'inline-block'};
+        if (v === 'On Review') return {...base, 'background':'#e6f0ff','color':'#1d4ed8', 'textAlign':'center'};
+        if (v === 'Accepted')  return {...base, 'background':'#e9f9ee','color':'#079455', 'textAlign':'center'};
+        if (v === 'Rejected')  return {...base, 'background':'#ffeaea','color':'#ce2b2b', 'textAlign':'center'};
+        return base;
+    }
+    """)
+    gb.configure_column("Status", cellStyle=cell_style)
+
+# Disable selection
+gb.configure_selection(selection_mode='disabled')
+
+# Build grid options
+grid_opts = gb.build()
+grid_opts["domLayout"] = "normal"
+grid_opts["pagination"] = True
+grid_opts["paginationPageSize"] = 10
+
+# Render AgGrid
+AgGrid(
+    display_df,
+    gridOptions=grid_opts,
+    allow_unsafe_jscode=True,
+    fit_columns_on_grid_load=True,
+    height=400,
+    theme="balham"
+)
+
+# ========== SECTION 2: STATISTICS & OVERVIEW (TOP) ==========
 st.markdown("### Overview & Statistics")
 
 # Statistics cards
@@ -173,109 +296,3 @@ if "Date published" in df.columns and len(df) > 0:
     st.dataframe(recent_df, width="stretch", hide_index=True)
 
 st.markdown("---")
-
-# ========== SECTION 2: ALL IDEAS TABLE (BOTTOM) ==========
-st.markdown("### 📋 All Ideas" + (" (Public Only)" if not is_authenticated else ""))
-
-# -------- Filters --------
-filter_cols = st.columns([1.2, 0.4, 0.4, 0.4])
-with filter_cols[0]:
-    q = st.text_input("Search (name / description)", key="home_search")
-with filter_cols[1]:
-    fd = st.date_input("From date", value=None, key="home_from")
-with filter_cols[2]:
-    td = st.date_input("To date", value=None, key="home_to")
-with filter_cols[3]:
-    cat_options = sorted(df["Category"].dropna().unique()) if "Category" in df.columns else []
-    category = st.selectbox("Category", options=["All"] + cat_options, index=0, key="home_category")
-
-# Apply filters
-filtered_df = df.copy()
-m = pd.Series([True] * len(filtered_df))
-if fd:
-    m &= filtered_df["From date"] >= pd.to_datetime(fd)
-if td:
-    m &= filtered_df["To date"] <= pd.to_datetime(td)
-if category and category != "All":
-    m &= filtered_df["Category"] == category
-if q:
-    ql = q.lower()
-    m &= (
-        filtered_df["Name"].str.lower().str.contains(ql, na=False) |
-        filtered_df["Description"].str.lower().str.contains(ql, na=False)
-    )
-filtered_df = filtered_df[m].reset_index(drop=True)
-
-if len(filtered_df) == 0:
-    st.info("No ideas match your filters. Try adjusting your search criteria.")
-    st.stop()
-
-# Show filtered count
-st.caption(f"Showing {len(filtered_df)} of {len(df)} ideas")
-
-# Prepare display dataframe
-display_df = pd.DataFrame()
-if "Name" in filtered_df.columns:
-    display_df["Title"] = filtered_df["Name"]
-if "Date published" in filtered_df.columns:
-    display_df["Date published"] = filtered_df["Date published"].dt.strftime("%Y-%m-%d")
-if "Description" in filtered_df.columns:
-    display_df["Short Description"] = filtered_df["Description"]
-if "Category" in filtered_df.columns:
-    display_df["Category"] = filtered_df["Category"]
-if "Status" in filtered_df.columns:
-    display_df["Status"] = filtered_df["Status"]
-
-# ---- AgGrid configuration ----
-gb = GridOptionsBuilder.from_dataframe(display_df)
-
-# Make Short Description wider
-if "Short Description" in display_df.columns:
-    gb.configure_column("Short Description", width=800)
-
-# Configure sortable columns
-if "Title" in display_df.columns:
-    gb.configure_column(
-        field="Title",
-        sortable=True,
-        suppressMenu=True
-    )
-if "Date published" in display_df.columns:
-    gb.configure_column(
-        field="Date published",
-        sortable=True,
-        suppressMenu=True
-    )
-
-# Status column styling
-if "Status" in display_df.columns:
-    cell_style = JsCode("""
-    function(params){
-        const v = params.value;
-        const base = {'border-radius':'999px','padding':'2px 8px','font-weight':'600','display':'inline-block'};
-        if (v === 'On Review') return {...base, 'background':'#e6f0ff','color':'#1d4ed8', 'textAlign':'center'};
-        if (v === 'Accepted')  return {...base, 'background':'#e9f9ee','color':'#079455', 'textAlign':'center'};
-        if (v === 'Rejected')  return {...base, 'background':'#ffeaea','color':'#ce2b2b', 'textAlign':'center'};
-        return base;
-    }
-    """)
-    gb.configure_column("Status", cellStyle=cell_style)
-
-# Disable selection
-gb.configure_selection(selection_mode='disabled')
-
-# Build grid options
-grid_opts = gb.build()
-grid_opts["domLayout"] = "normal"
-grid_opts["pagination"] = True
-grid_opts["paginationPageSize"] = 10
-
-# Render AgGrid
-AgGrid(
-    display_df,
-    gridOptions=grid_opts,
-    allow_unsafe_jscode=True,
-    fit_columns_on_grid_load=True,
-    height=400,
-    theme="balham"
-)

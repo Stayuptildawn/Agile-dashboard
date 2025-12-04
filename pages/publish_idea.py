@@ -11,8 +11,8 @@ from styles import edit_idea as edit_idea
 header.show_header("New Idea")
 
 role = st.session_state.get("role", "student")
-if role == "investor":
-    st.error("Investors cannot publish new ideas. You can browse ideas and save them to 'My Ideas' instead.")
+if role in ["investor", "admin"]:
+    st.error("Cannot publish new ideas. You can browse ideas and save them to 'My Ideas' instead.")
     st.stop()
 
 # Small hint at the top so users know what '*' means
