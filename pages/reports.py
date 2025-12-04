@@ -69,15 +69,6 @@ with tab1:  # Weekly view
     
     # Display the line chart
     st.line_chart(chart_data_weekly.set_index('Day'), height=400)
-    
-    # Legend below the chart
-    col_leg1, col_leg2, col_leg3 = st.columns(3)
-    with col_leg1:
-        st.markdown("🟢 **Idea Submissions**")
-    with col_leg2:
-        st.markdown("🔵 **Investor Views**")
-    with col_leg3:
-        st.markdown("🟡 **Interests Expressed**")
 
 with tab2:  # Monthly view
     # Generate sample data for the chart
@@ -90,15 +81,7 @@ with tab2:  # Monthly view
     
     # Display the line chart
     st.line_chart(chart_data.set_index('Week'), height=400)
-    
-    # Legend below the chart
-    col_leg1, col_leg2, col_leg3 = st.columns(3)
-    with col_leg1:
-        st.markdown("🟢 **Idea Submissions**")
-    with col_leg2:
-        st.markdown("🔵 **Investor Views**")
-    with col_leg3:
-        st.markdown("🟡 **Interests Expressed**")
+
 
 with tab3:  # Yearly view
     # Generate sample data for yearly chart
@@ -116,15 +99,6 @@ with tab3:  # Yearly view
     
     # Display the line chart
     st.line_chart(chart_data_yearly.set_index('Month'), height=400)
-    
-    # Legend below the chart
-    col_leg1, col_leg2, col_leg3 = st.columns(3)
-    with col_leg1:
-        st.markdown("🟢 **Idea Submissions**")
-    with col_leg2:
-        st.markdown("🔵 **Investor Views**")
-    with col_leg3:
-        st.markdown("🟡 **Interests Expressed**")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
