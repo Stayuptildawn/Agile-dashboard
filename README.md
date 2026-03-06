@@ -6,7 +6,7 @@ A multi-page Streamlit application for managing, reviewing, and tracking innovat
 
 ## Overview
 
-I built this to give teams a lightweight, no-database platform for submitting and tracking innovation ideas through a full lifecycle — from draft to published. It supports both public visitors browsing ideas and authenticated users managing their own submissions. The goal was to keep deployment friction near zero while still providing a real, usable product.
+We built this to give teams a lightweight, no-database platform for submitting and tracking innovation ideas through a full lifecycle — from draft to published. It supports both public visitors browsing ideas and authenticated users managing their own submissions. The goal was to keep deployment friction near zero while still providing a real, usable product.
 
 ---
 
@@ -109,7 +109,4 @@ Once running, you get a fully functional multi-page web app where public users c
 
 ---
 
-## Author
 
-**Mohammad Soleimani Roudi**
-[GitHub](https://github.com/Stayuptildawn)
