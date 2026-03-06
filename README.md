@@ -1,202 +1,115 @@
-
 # Agile Dashboard
 
-A modular, modern Streamlit application for managing ideas and innovations with user authentication, responsive design, and role-based navigation.
-
-## 🎯 Features
-
-### Public Access
-- **📊 Statistics Dashboard** - View innovation metrics without login
-- **🔍 Browse Public Ideas** - Explore published ideas with advanced filtering
-- **📈 Category Analytics** - See idea distribution across categories
-- **🕒 Recent Activity** - Track the latest submissions
-
-### Authenticated Users
-- **✏️ Full CRUD Operations** - Create, read, update, and delete ideas
-- **👤 Personal Workspace** - Manage your own ideas in "My Ideas"
-- **📤 Publish Control** - Draft, review, and publish ideas
-- **🔐 User Authentication** - Secure login with rate limiting
-- **💾 CSV Persistence** - All changes saved automatically
-
-### Technical Features
-- **Wide-mode responsive layout**
-- **Interactive AgGrid tables** with sorting and pagination
-- **Real-time data synchronization** across pages
-- **Public/private visibility settings**
-- **Flash notifications** for user actions
-- **Modern UI** with custom CSS styling
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.8 or higher (3.11 recommended)
-- pip (Python package manager)
-
-### Installation
-
-1. **Clone the repository:**
-git clone https://github.com/Stayuptildawn/Agile-dashboard.git
-cd Agile-dashboard
-
-
-
-2. **Create a virtual environment:**
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-
-
-3. **Install dependencies:**
-pip install streamlit pandas streamlit-aggrid
-
-
-
-4. **Run the application:**
-streamlit run streamlit_app.py
-
-
-
-The app will open in your browser at `http://localhost:8501`
-
-## 🔐 Default Credentials
-
-- **Username:** admin
-- **Password:** aA1234
-
-> ⚠️ **Important:** Change these credentials in `data/users.csv` for production use
-
-## 📖 Usage Guide
-
-### 🏠 Home Page
-- **Public Access**: View statistics and public ideas without login
-- **Statistics Cards**: Total ideas, acceptance rate, review status, categories
-- **Category Distribution**: Visual breakdown with percentages
-- **Recent Activity**: 5 most recent published ideas
-- **Filters**: Search by name/description, date range, category
-
-### 💡 Ideas Page
-- Browse all submitted ideas (authenticated users only)
-- Advanced filtering and sorting
-- Edit and delete functionality
-- Select ideas with checkboxes
-
-### 📝 My Ideas Page
-- View only your submitted ideas
-- Filter by status (On Review, Accepted, Rejected)
-- Edit drafts before publishing
-- Publish or delete your ideas
-- Track submission history
-
-### ➕ New Idea Page
-- **Required Fields**:
-- Title
-- Category
-- Short Description (max 200 chars)
-- Detailed Description
-- Estimated Impact / Target Audience
-- **Actions**:
-- Save as Draft (partial completion allowed)
-- Publish (requires all fields + terms acceptance)
-- **Visibility**: Public or Private
-
-### ✏️ Edit Idea Page
-- Modify existing ideas
-- Auto-saves to CSV
-- Returns to "My Ideas" after saving
-
-
-## 🎨 Customization
-
-### Colors & Theme
-Edit `.streamlit/config.toml`
-
-
-
-### Styles
-Modify CSS in `styles/` directory:
-- `main.py` - Global styles for all pages
-- `login.py` - Login page specific styles
-- `dashboard.py` - Dashboard specific styles
-- `header.py` - Header and navigation styles
-
-### Users
-Edit `data/users.csv` to add/modify user credentials:
-username,password
-admin,aA1234
-user1,password123
-
-
-
-## 🔧 Architecture
-
-The application follows a modern script-based architecture:
-
-1. **streamlit_app.py** - Main entry point, loads data from CSV and routes based on authentication
-2. **pages/** - Individual page modules (dashboard, myideas, publish_idea, edit_idea, login)
-3. **pages/header.py** - Shared navigation header with st.page_link()
-4. **styles/** - Centralized CSS management for consistent styling
-5. **data/** - CSV storage for ideas, users, and login attempts
-6. **generate_initial_data.py** - Script to populate initial idea data
-
-## 🛠️ Technologies Used
-
-- **Streamlit 1.29+** - Web application framework
-- **Pandas** - Data manipulation and CSV handling
-- **streamlit-aggrid** - Interactive data tables with selection
-- **Python 3.8+** - Core language
-- **HTML/CSS** - Custom styling and layout
-
-## 📞 Support
-
-For support, open an issue on GitHub or contact the development team.
-
-
-## 📄 License
-
-This project is licensed under the MIT License.
+A multi-page Streamlit application for managing, reviewing, and tracking innovation ideas — built with role-based access, CSV persistence, and a modular page architecture.
 
 ---
 
-**Built with ❤️ using Streamlit**
+## Overview
 
-## 📁 Project Structure
+I built this to give teams a lightweight, no-database platform for submitting and tracking innovation ideas through a full lifecycle — from draft to published. It supports both public visitors browsing ideas and authenticated users managing their own submissions. The goal was to keep deployment friction near zero while still providing a real, usable product.
+
+---
+
+## Tech Stack
+
+- **Python 3.8+**
+- **Streamlit 1.29+** — web framework and UI
+- **Pandas** — data handling and CSV operations
+- **streamlit-aggrid** — interactive, sortable data tables
+- **HTML / CSS** — custom styling via a centralized `styles/` module
+
+---
+
+## Project Structure
 
 ```
 Agile-dashboard/
-├── streamlit_app.py # Main entry point & routing
-├── generate_initial_data.py # Initial data population script
-├── README.md # This file
-├── requirements.txt # Python dependencies
-├── .gitignore # Git ignore rules
 │
-├── pages/ # Application pages
-│ ├── login.py # Authentication page
-│ ├── home.py # Landing page with statistics
-│ ├── dashboard.py # Ideas management (all ideas)
-│ ├── myideas.py # User's personal ideas
-│ ├── publish_idea.py # Create new idea form
-│ ├── edit_idea.py # Edit existing idea
-│ ├── header.py # Shared navigation header
-│ └── [other pages] # Additional features
+├── streamlit_app.py          # Entry point — loads CSV data, manages session state, routes pages
+├── generate_initial_data.py  # One-time script to seed ideas.csv with sample data
+├── requirements.txt          # Python dependencies
 │
-├── styles/ # CSS styling modules
-│ ├── init.py
-│ ├── main.py # Global styles
-│ ├── login.py # Login page styles
-│ ├── dashboard.py # Dashboard styles
-│ ├── header.py # Navigation styles
-│ ├── edit_idea.py # Form styles
-│ └── home.py # Home page styles
+├── pages/
+│   ├── home.py               # Public landing page with stats, category breakdown, recent activity
+│   ├── login.py              # Authentication with rate limiting and lockout handling
+│   ├── dashboard.py          # Full ideas table for authenticated users (filter, sort, delete)
+│   ├── myIdeas.py            # Personal workspace — view, edit, publish, or delete your ideas
+│   ├── publish_idea.py       # New idea submission form (draft or publish)
+│   ├── edit_idea.py          # Edit an existing idea, auto-saves to CSV
+│   ├── openIdea.py           # Detailed single-idea view
+│   ├── investor_interest.py  # Investor-facing idea exploration page
+│   ├── messages.py           # In-app messaging interface
+│   ├── reports.py            # Reporting and analytics view
+│   ├── profile.py            # User profile page (in progress)
+│   ├── sprints.py            # Sprint tracking (in progress)
+│   ├── team.py               # Team management (in progress)
+│   ├── experiments.py        # Experimental features sandbox
+│   └── header.py             # Shared navigation component used across all pages
 │
-├── data/ # Data storage (CSV files)
-│ ├── ideas.csv # All ideas database
-│ ├── users.csv # User credentials
-│ └── login_attempts.csv # Failed login tracking
+├── styles/                   # Per-page CSS modules loaded at runtime
+│   ├── main.py               # Global base styles
+│   ├── login.py              # Login page styles
+│   ├── dashboard.py          # Dashboard table styles
+│   ├── header.py             # Navigation bar styles
+│   ├── edit_idea.py          # Form styles
+│   └── home.py               # Home page styles
 │
-└── elements/ # Static assets
-├── upm_logo.png # University logo
-├── Right Side.png # Login illustration
-├── loginRateLimit.png # Rate limit popup
-└── loginAccDeleted.png # Account deleted popup
+├── data/                     # Flat-file storage (no database required)
+│   ├── ideas.csv             # All submitted ideas
+│   ├── users.csv             # User credentials
+│   └── login_attempts.csv    # Failed login tracking for rate limiting
+│
+└── elements/                 # Static assets (logos, UI images)
 ```
+
+---
+
+## How to Run
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Stayuptildawn/Agile-dashboard.git
+   cd Agile-dashboard
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install streamlit pandas streamlit-aggrid
+   ```
+
+4. **(Optional) Seed the database with sample ideas:**
+   ```bash
+   python generate_initial_data.py
+   ```
+
+5. **Start the app:**
+   ```bash
+   streamlit run streamlit_app.py
+   ```
+
+   The app will open at `http://localhost:8501`.
+
+6. **Default login credentials:**
+   - Username: `admin`
+   - Password: `aA1234`
+
+   > ⚠️ For any real deployment, replace these with hashed credentials. Plaintext passwords in CSV are for demo use only.
+
+---
+
+## Key Output / Results
+
+Once running, you get a fully functional multi-page web app where public users can browse and filter published ideas, and authenticated users can submit, manage, and track their own ideas through a draft → review → published workflow — all persisted automatically to local CSV files.
+
+---
+
+## Author
+
+**Mohammad Soleimani Roudi**
+[GitHub](https://github.com/Stayuptildawn)
